@@ -24,6 +24,8 @@
   },
   "dependencies": {
     "@babel/polyfill": "^7.6.0",
-    "@babel/runtime": "^7.6.3"
+    "@babel/runtime": "^7.6.3",
+    "core-js": "^3.3.2",
+    "lodash": "^4.17.15"
   }
 }

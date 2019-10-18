@@ -5,6 +5,7 @@
 - **本地安装路径** ：C:\Users\shilf\work\node_modules  
 - **全局安装路径 -g** ： C:\Users\shilf\AppData\Roaming\npm\node_modules
 - **npm install / npm i简介** ：  
+
 **npm install X –save / npm install X -S**：   
 >&emsp;&emsp;把X包安装到node_modules目录中，同时会在package.json的dependencies属性下添加X，之后运行npm install命令时，会自动安装X到node_modules目录中   
 
@@ -58,6 +59,18 @@ gulp是基于Nodejs的自动任务运行器， 她能自动化地完成javascrip
 
 调试使用npm或者webpack-dev-server启动本地服务，然后用**chrome**自带的调试工具调试，足矣
 
+从前端开发了解，一般是npm+webpack就可以搞定了
 
 -------------------
-从前端开发了解，一般是npm+webpack就可以搞定了
+
+
+-------------------
+
+# Js常用工具和库  
+
+**browerslist**  
+**lodash**  
+**immutable.js**  
+
+
+
