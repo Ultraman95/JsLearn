@@ -1,9 +1,13 @@
 const path = require('path')
 
-//const CleanWebpackPlugin = require('clean-webpack-plugin')    //clean-webpack-plugin老版本 
+//const CleanWebpackPlugin = require('clean-webpack-plugin')    // clean-webpack-plugin老版本 
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')  // clean-webpack-plugin 3.0以上的版本
+const HtmlWebpackPlugin = require('html-webpack-plugin')        // 自动生成html的插件
+const MiniCssExtractPlugin = require('mini-css-extract-plugin') // 将 css单独打包成文件，目前不支持热更新（需要刷新页面）。所以开发环境一般用style-loader
+const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin') // 压缩 css
 
-const HtmlWebpackPlugin = require('html-webpack-plugin') // 引入插件
+const PurifyCSS = require('purifycss-webpack')
+const glob = require('glob-all')
 
 // path.resolve() 方法会把一个路径或路径片段的序列解析为一个绝对路径
 // __dirname: 当前模块的文件夹名称
@@ -37,6 +41,13 @@ module.exports = {
           test: /[\\/]node_modules[\\/]lodash[\\/]/,
           priority: -5    //优先级要大于 vendors 不然会被打包进 vendors
         },
+        commons: {
+          name: 'commons',
+          minSize: 0,   //表示在压缩前的最小模块大小,默认值是 30kb
+          minChunks: 2, // 最小公用次数
+          priority: 5,  // 优先级
+          reuseExistingChunk: true // 公共模块必开启，此为公共模块
+        },
         vendors: {
           name: 'vendors',
           test: /[\\/]node_modules[\\/]/,   //正则过滤，只有node_modules引入的第三方库才会被打包到vendors，除非单独打包第三方库。
@@ -66,16 +77,47 @@ module.exports = {
       filename: 'index.html', // 生成后的文件名
       template: 'index.html', // 根据此模版生成 HTML 文件
       chunks: ['app'] // entry中的 page 入口才会被打包
+    }),
+    new MiniCssExtractPlugin({
+      filename: '[name].css',
+      chunkFilename: '[id].css'
+    }),
+    new OptimizeCssAssetsPlugin({
+      assetNameRegExp: /\.css$/g,
+      cssProcessor: require('cssnano'), //用于优化\最小化 CSS 的 CSS处理器，默认为 cssnano
+      cssProcessorOptions: { safe: true, discardComments: { removeAll: true } }, //传递给 cssProcessor 的选项，默认为{}
+      canPrint: true //布尔值，指示插件是否可以将消息打印到控制台，默认为 true
+    }),
+    // 清除无用 css
+    new PurifyCSS({
+      paths: glob.sync([
+        // 要做 CSS Tree Shaking 的路径文件
+        path.resolve(__dirname, './*.html'), // 请注意，我们同样需要对 html 文件进行 tree shaking
+        path.resolve(__dirname, './src/*.js')
+      ])
     })
   ],
   module: {
     rules: [
+      //module.rules.use数组的执行顺序是：从左往右，从下往上
       {
         test: /\.js$/, // 使用正则来匹配 js 文件
         exclude: /node_modules/, // 排除依赖包文件夹
         use: {
           loader: 'babel-loader' // 使用 babel-loader
         }
+      },
+      {
+        test: /\.(sa|sc|c)ss$/, // 针对 .scss 或者 .css 后缀的文件设置 loader
+        //use: ['style-loader', 'css-loader']
+        use: [
+          {
+            loader: MiniCssExtractPlugin.loader
+          },
+          'css-loader',
+          'postcss-loader', // 使用 postcss 为 css 加上浏览器前缀
+          'sass-loader' // 使用 sass-loader 将 scss 转为 css
+        ]
       }
     ]
   }
