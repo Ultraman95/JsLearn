@@ -2,8 +2,12 @@
 import './css/base.css'
 //import './scss/main.scss'
 import { helloWebPack } from './vendor/util'
-console.log(helloWebPack())
 
+main()
+
+function main(){
+  console.log(helloWebPack())
+}
 
 document.addEventListener('click', function() {
   // import(/* webpackChunkName: 'use-lodash'*/ 'lodash').then(function(_) {
